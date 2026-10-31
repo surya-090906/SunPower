@@ -1,0 +1,58 @@
+{% if gate %}<div class="gate mb"><span>🔒</span><span>{{ gate }}</span></div>{% endif %}
+{% if not quote %}
+<div class="card"><div class="card-b">
+  <h3>No quote yet</h3>
+  <p class="muted">The quote is built from the kit template{% if template %} <b>{{ template.name }}</b>{% endif %} and the approved survey: every part follows on its own, so nobody has to remember the small ones.</p>
+  <form method="post" action="/app/p/{{ p.id }}/do/quote_build/" class="row">{% csrf_token %}
+    <div class="field" style="width:140px"><label>Discount %</label><input class="inp" name="discount" value="0" inputmode="decimal"></div>
+    <button class="btn btn-primary {% if gate %}is-disabled{% endif %}" style="align-self:flex-end" {% if gate %}title="{{ gate }}" aria-disabled="true"{% endif %}>Create quote</button>
+  </form>
+</div></div>
+{% else %}
+<div class="spread mb"><div class="row"><h2>Quote v{{ quote.version }}</h2><span class="badge {{ quote.status|status_class }}">{{ quote.get_status_display }}</span><span class="muted small">{{ quote.kw }} kW · {{ quote.panel_count }} panels{% if template %} · template {{ template.name }}{% endif %}{% if quote.valid_until %} · valid until {{ quote.valid_until|dmy }}{% endif %}</span></div>
+  <div class="row"><a class="btn btn-line btn-sm" href="/doc/quote/{{ quote.id }}/">Print</a>
+  {% if quote.status == "sent" and can_build and not gate %}<form method="post" action="/app/p/{{ p.id }}/do/quote_build/" class="inline-form" data-confirm="Create a revised quote? The sent quote will be superseded.">{% csrf_token %}<button class="btn btn-line btn-sm">Create revised quote</button></form>{% endif %}</div></div>
+<div class="grid g-main">
+  <div class="card"><div class="card-b tight">
+    <form id="qform" method="post" action="/app/p/{{ p.id }}/do/quote_update/">{% csrf_token %}
+    <div class="tbl-wrap"><table class="table"><thead><tr><th>Item</th><th class="num">Qty</th><th class="num">Rate</th><th class="num">Amount</th>{% if is_draft %}<th></th>{% endif %}</tr></thead><tbody>
+      {% for l in lines %}<tr><td>{{ l.description }} {% if l.is_auto %}<span class="badge b-blue">auto</span>{% else %}<span class="badge b-grey">edited</span>{% endif %}<br><span class="tiny faint">{{ l.category }}</span></td>
+        <td class="num">{% if is_draft %}<input class="inp" style="width:86px;text-align:right" name="qty_{{ l.id }}" value="{{ l.qty|qty }}" inputmode="decimal">{% else %}{{ l.qty|qty }}{% endif %}</td>
+        <td class="num">{{ l.unit_price_paise|inr }}</td><td class="num">{{ l.net_paise|inr }}</td>
+        {% if is_draft %}<td><button type="submit" form="rm-{{ l.id }}" class="btn btn-sm btn-danger" title="Remove this line">✕</button></td>{% endif %}</tr>{% endfor %}
+    </tbody></table></div>
+    {% if is_draft %}<div class="spread" style="padding:.9rem 1.1rem;border-top:1px solid var(--line)"><div class="row"><label class="small bold">Discount %</label><input class="inp" style="width:90px" name="discount" value="{{ quote.discount_pct|qty }}" inputmode="decimal"><span class="hint">Max {{ max_discount }}% without the Director</span></div><button class="btn btn-dark btn-sm">Save changes</button></div>{% endif %}
+    </form>
+    {% if is_draft %}{% for l in lines %}<form id="rm-{{ l.id }}" method="post" action="/app/p/{{ p.id }}/do/quote_remove/">{% csrf_token %}<input type="hidden" name="line" value="{{ l.id }}"></form>{% endfor %}
+    <form method="post" action="/app/p/{{ p.id }}/do/quote_add/" class="row" style="padding:.9rem 1.1rem;border-top:1px solid var(--line)">{% csrf_token %}
+      <select class="inp" name="product" style="max-width:320px"><option value="">Add a part…</option>{% for pr in addable %}<option value="{{ pr.id }}">{{ pr.name }} · {{ pr.price_paise|inr }}</option>{% endfor %}</select><input class="inp" style="width:80px" name="qty" value="1"><button class="btn btn-line btn-sm">Add</button>
+    </form>
+    <form method="post" action="/app/p/{{ p.id }}/do/quote_reset/" style="padding:0 1.1rem 1rem" data-confirm="Discard your edits and rebuild from the template?">{% csrf_token %}<button class="btn btn-line btn-sm">Reset to template</button></form>{% endif %}
+  </div></div>
+  <div class="stack">
+    <div class="card"><div class="card-b">
+      <div class="spread"><span class="muted">Subtotal</span><span>{{ quote.gross_paise|inr }}</span></div>
+      {% if discount_paise %}<div class="spread"><span class="muted">Discount ({{ quote.discount_pct|qty }}%)</span><span>-{{ discount_paise|inr }}</span></div>{% endif %}
+      <div class="spread"><span class="muted">GST</span><span>{{ quote.tax_paise|inr }}</span></div>
+      <div class="spread bold" style="font-size:1.2rem;border-top:2px solid var(--ink);margin-top:.4rem;padding-top:.5rem"><span>Total</span><span>{{ quote.total_paise|inr }}</span></div>
+      {% if quote.subsidy_paise %}<div class="banner info mt" style="padding:.6rem .8rem"><div class="small"><b>Subsidy {{ quote.subsidy_paise|inr }}</b> goes to the customer, not to us. Net cost to them about {{ quote.net_cost_after_subsidy_paise|inr }}.</div></div>{% endif %}
+      {% if margin.margin is not None %}<div class="spread mt"><span class="muted small">Estimated margin</span><span class="badge {% if margin.margin < 15 %}b-red{% elif margin.margin < 22 %}b-amber{% else %}b-green{% endif %}">{{ margin.margin|floatformat:1 }}% · {{ margin.profit|inr }}</span></div>{% endif %}
+    </div></div>
+    <div class="card"><div class="card-h"><h2>Parts check</h2></div><div class="card-b small">
+      {% for r in required %}<div class="spread" style="padding:.15rem 0"><span>{{ r.label }}</span>{% if r.ok %}<span class="badge b-green">✓ on quote</span>{% else %}<span class="badge b-red">✕ missing</span>{% endif %}</div>{% endfor %}
+      <p class="hint mt-s">Required part categories must all be on the quote before it can be sent.</p></div></div>
+    {% if is_draft %}<div class="card"><div class="card-h"><h2>Send to customer</h2></div><div class="card-b">
+      <form method="post" action="/app/p/{{ p.id }}/do/quote_send/" class="stack">{% csrf_token %}
+        {% if missing %}<div class="gate">Required parts missing: {{ missing|join:", " }}.</div>
+        {% if user.role == "engineer" or user.role == "director" %}<div class="field"><label>Override reason (Engineer or Director)</label><input class="inp" name="override_reason" placeholder="Why is this part not needed?"></div>{% endif %}{% endif %}
+        <button class="btn btn-primary btn-block {% if missing and user.role != 'engineer' and user.role != 'director' %}is-disabled{% endif %}" {% if missing and user.role != 'engineer' and user.role != 'director' %}title="Required parts missing: {{ missing|join:', ' }}"{% endif %}>Send quote</button>
+      </form></div></div>
+    {% elif quote.status == "sent" %}<div class="card"><div class="card-h"><h2>Customer replies</h2></div><div class="card-b">
+      <p class="small muted">Waiting for the customer to accept in their portal. If they said yes on the phone:</p>
+      <form method="post" action="/app/p/{{ p.id }}/do/quote_accept/" class="stack">{% csrf_token %}
+        <input class="inp" name="name" value="{{ p.customer.name }}" placeholder="Name of the person who accepted"><input class="inp" name="note" placeholder="How? e.g. phone call on 31 Oct">
+        <button class="btn btn-line btn-block">Record acceptance</button></form></div></div>
+    {% elif quote.status == "accepted" %}<div class="banner ok"><span class="ico">✓</span><div>Accepted by <b>{{ quote.accepted_by_name }}</b> on {{ quote.accepted_at|dmy }}.</div></div>{% endif %}
+  </div>
+</div>
+{% endif %}

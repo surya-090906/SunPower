@@ -1,0 +1,17 @@
+{% extends "backoffice/base.html" %}
+{% block title %}Open ticket{% endblock %}
+{% block content %}
+<div class="page-head"><div><a class="small" href="/app/help/customer/{{ c.id }}/">‹ {{ c.name }}</a><h1 style="margin-top:.3rem">Open a service ticket</h1><div class="sub">{{ c.name }} · {{ c.phone|phone }}</div></div></div>
+<form method="post" class="stack" style="max-width:760px">{% csrf_token %}<input type="hidden" name="customer" value="{{ c.id }}">
+  <div class="card"><div class="card-h"><h2>Which unit has the fault?</h2></div><div class="card-b">
+    {% for r in rows %}<label class="check" style="padding:.6rem 0;border-bottom:1px solid var(--line)"><input type="radio" name="serial" value="{{ r.s.id }}" {% if pick == r.s.id|stringformat:"s" %}checked{% endif %}>
+      <span class="grow"><b>{{ r.s.product.name }}</b> <span class="badge {{ r.w.css }}">{{ r.w.label }}</span><br><span class="mono small muted">{{ r.s.serial_no }} · {{ r.s.project.code }}</span></span></label>
+    {% empty %}<div class="muted">This customer has no delivered equipment.</div>{% endfor %}
+    <p class="hint mt-s">The warranty verdict appears the moment the ticket is created.</p></div></div>
+  <div class="card"><div class="card-b"><div class="fields">
+    <div class="field"><label>Fault code on the inverter</label><input class="inp" name="fault_code" value="{{ form.fault_code }}" list="codes" placeholder="E04"><datalist id="codes"><option>E01</option><option>E04</option><option>E07</option><option>E12</option><option>No display</option></datalist></div>
+    <div class="field"><label>Reported via</label><select class="inp" name="source"><option value="call">Phone call</option><option value="whatsapp">WhatsApp</option><option value="staff">Raised by staff</option></select></div>
+    <div class="field full"><label>What is happening?</label><textarea class="inp" name="description" rows="3" placeholder="For example: no power since the rain last night, inverter shows a fault code">{{ form.description }}</textarea></div></div></div></div>
+  <div><button class="btn btn-primary btn-lg">Open ticket</button></div>
+</form>
+{% endblock %}

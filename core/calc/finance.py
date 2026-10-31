@@ -45,3 +45,17 @@ def project_financials(project) -> dict:
         "service_cost": service_cost, "other": other, "cost": cost, "profit": profit,
         "margin": (profit / revenue * 100) if revenue else None, "estimated": estimated,
     }
+
+
+def quote_margin(quote) -> dict:
+    """Estimated margin of a quote against standard cost (shown as a chip on the quote builder)."""
+    materials = 0
+    for line in quote.lines.select_related("product"):
+        if line.product and not line.product.is_service:
+            materials += int(line.qty * (line.product.avg_cost_paise or line.product.cost_paise))
+    rates = list(User.objects.filter(role="technician", hourly_rate_paise__gt=0).values_list("hourly_rate_paise", flat=True))
+    rate = sum(rates) // len(rates) if rates else 25000
+    labour = crew_size(quote.kw) * config.get("install_hours_estimate") * rate
+    revenue = quote.subtotal_paise
+    profit = revenue - materials - labour
+    return {"revenue": revenue, "cost": materials + labour, "profit": profit, "margin": (profit / revenue * 100) if revenue else None}
