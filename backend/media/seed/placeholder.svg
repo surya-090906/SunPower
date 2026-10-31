@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
-<defs><linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bae6fd"/><stop offset="1" stop-color="#fef3c7"/></linearGradient></defs>
-<rect width="800" height="600" fill="url(#s)"/><circle cx="660" cy="110" r="52" fill="#fbbf24"/>
-<polygon points="80,470 720,470 640,250 160,250" fill="#1e3a8a"/>
-<g stroke="#93c5fd" stroke-width="3" opacity=".8"><line x1="320" y1="250" x2="300" y2="470"/><line x1="480" y1="250" x2="500" y2="470"/>
-<line x1="120" y1="360" x2="680" y2="360"/><line x1="140" y1="305" x2="660" y2="305"/><line x1="100" y1="415" x2="700" y2="415"/></g>
-<rect x="60" y="470" width="680" height="16" fill="#475569"/><text x="400" y="560" font-family="sans-serif" font-size="26" fill="#334155" text-anchor="middle">Site photo (demo placeholder)</text></svg>
