@@ -1,0 +1,101 @@
+/* SunThread "Sunrise" skin. Loaded last: restyles the whole app (React shell, generated workflow pages,
+   print documents untouched) through tokens and a few component overrides. Delete this import to revert. */
+.r-app {
+  --sun-1: #ffc83d; --sun-2: #ff9a1f; --sun-3: #ff6a2b;
+  --sun-grad: linear-gradient(135deg, #ffc83d 0%, #ff9a1f 55%, #ff7a2b 100%);
+  --night-1: #0a1b2c; --night-2: #11334a; --night-3: #17506a;
+  --night-grad: linear-gradient(160deg, #0a1b2c 0%, #102f47 55%, #17506a 100%);
+  --bg: #f5f3ee; --surface: #ffffff; --surface-2: #faf8f4; --line: #ece6da;
+  --nav: #0a1b2c; --brand: #ff9a1f; --brand-d: #c2570a; --brand-ink: #2b1500; --brand-soft: #fff1d6;
+  --card-r: 18px;
+  --card-sh: 0 1px 2px rgba(10, 27, 44, .05), 0 14px 34px -18px rgba(10, 27, 44, .28);
+  background:
+    radial-gradient(900px 420px at 100% -8%, rgba(255, 176, 32, .20), transparent 60%),
+    radial-gradient(700px 380px at -10% 0%, rgba(23, 80, 106, .10), transparent 55%),
+    var(--bg);
+  background-attachment: fixed;
+}
+
+/* ---------- buttons ---------- */
+.r-app .MuiButton-containedSecondary, .r-app .MuiButton-containedPrimary, .r-app .btn-primary {
+  background: var(--sun-grad); color: #2b1500; border: 0; font-weight: 750;
+  box-shadow: 0 10px 22px -10px rgba(255, 122, 43, .75), inset 0 1px 0 rgba(255, 255, 255, .45);
+  transition: transform .15s ease-out, box-shadow .15s ease-out, filter .15s ease-out;
+}
+.r-app .MuiButton-containedSecondary:hover, .r-app .MuiButton-containedPrimary:hover, .r-app .btn-primary:hover {
+  background: var(--sun-grad); filter: brightness(1.05) saturate(1.05); transform: translateY(-1px);
+  box-shadow: 0 14px 26px -10px rgba(255, 122, 43, .85), inset 0 1px 0 rgba(255, 255, 255, .5); text-decoration: none;
+}
+.r-app .MuiButton-outlined { border-width: 1.5px; border-color: #d9d1c1; color: var(--night-1); background: rgba(255, 255, 255, .7); backdrop-filter: blur(6px); }
+.r-app .MuiButton-outlined:hover { border-color: var(--sun-2); background: #fff; }
+.r-app .btn { border-radius: 12px; }
+.r-app .btn-dark { background: var(--night-grad); color: #fff; }
+.r-app .btn-ok { background: #dff5e7; color: #14683f; }
+.r-app .btn-line { border-color: #ded6c6; }
+
+/* ---------- surfaces ---------- */
+.r-app .card, .r-app .MuiPaper-outlined, .r-app .pcard, .r-app .metric-card, .r-app .project-card, .r-app .enquiry-section {
+  background: rgba(255, 255, 255, .92); border: 1px solid var(--line); border-radius: var(--card-r); box-shadow: var(--card-sh);
+}
+.r-app .card-h { border-bottom: 1px solid var(--line); background: linear-gradient(180deg, #fffdf8, #fff); border-radius: var(--card-r) var(--card-r) 0 0; }
+.r-app .metric-card, .r-app .project-card { transition: transform .18s ease-out, box-shadow .18s ease-out, border-color .18s; }
+.r-app .metric-card:hover, .r-app .project-card:hover, .r-app a.pcard:hover {
+  transform: translateY(-3px); border-color: #ffc27a; box-shadow: 0 2px 4px rgba(10, 27, 44, .06), 0 22px 40px -18px rgba(255, 122, 43, .45);
+}
+.r-app .kpi .val, .r-app .metric-value { background: var(--night-grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.r-app .kpi { position: relative; overflow: hidden; }
+.r-app .kpi::after { content: ""; position: absolute; right: -22px; top: -22px; width: 62px; height: 62px; border-radius: 50%; background: var(--sun-grad); opacity: .16; }
+.r-app .table th { background: #faf6ec; color: #6b6354; letter-spacing: .07em; }
+.r-app .table tbody tr:hover td { background: #fffaf0; }
+.r-app .badge { border-radius: 999px; font-weight: 700; }
+.r-app .banner, .r-app .gate, .r-app .next { border-radius: 16px; }
+.r-app .next { background: linear-gradient(135deg, #fff3d9, #ffe9c2); border: 1px solid #ffcf85; }
+.r-app .tabs a.active { border-color: var(--sun-2); }
+.r-app .inp, .r-app .MuiOutlinedInput-root { border-radius: 12px; }
+.r-app .inp:focus { outline: 3px solid rgba(255, 154, 31, .35); border-color: var(--sun-2); }
+.r-app .steps .current .dot { background: var(--sun-grad); box-shadow: 0 0 0 6px rgba(255, 176, 32, .25); }
+.r-app .steps .done .dot { background: linear-gradient(135deg, #27a96c, #16824f); border-color: transparent; }
+.r-app .hsteps i.current { background: var(--sun-grad); }
+.r-app .progress > i { background: var(--sun-grad); }
+.r-app .kcol { background: rgba(10, 27, 44, .04); border-radius: 18px; }
+.r-app .kcard { border-radius: 14px; box-shadow: 0 6px 14px -10px rgba(10, 27, 44, .4); }
+.r-app .kcard:hover { border-color: var(--sun-2); }
+
+/* ---------- workspace shell ---------- */
+.r-app .workspace-sidebar { background: var(--night-grad); box-shadow: 8px 0 40px -20px rgba(10, 27, 44, .6); }
+.r-app .workspace-sidebar::before { content: ""; position: absolute; left: -60px; bottom: 90px; width: 220px; height: 220px; border-radius: 50%; background: var(--sun-grad); opacity: .10; filter: blur(8px); pointer-events: none; }
+.r-app .workspace-nav-link { border-radius: 12px; color: #c3d3dc; transition: background .15s, color .15s, transform .15s; }
+.r-app .workspace-nav-link:hover { background: rgba(255, 255, 255, .09); color: #fff; transform: translateX(2px); }
+.r-app .workspace-nav-link.active { background: var(--sun-grad); color: #2b1500; box-shadow: 0 10px 22px -12px rgba(255, 122, 43, .9); }
+.r-app .sidebar-service { background: rgba(255, 255, 255, .07); border: 1px solid rgba(255, 255, 255, .12); border-radius: 16px; backdrop-filter: blur(6px); }
+.r-app .workspace-topbar { background: rgba(255, 255, 255, .78); backdrop-filter: blur(14px) saturate(1.3); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 20; }
+.r-app .workspace-search { background: #fff; border: 1px solid var(--line); border-radius: 999px; box-shadow: inset 0 1px 2px rgba(10, 27, 44, .05); }
+.r-app .customer-mobile-nav { background: rgba(255, 255, 255, .92); backdrop-filter: blur(14px); border-top: 1px solid var(--line); }
+.r-app .page-heading h1, .r-app .page-head h1 { letter-spacing: -.035em; }
+
+/* ---------- public pages (landing, auth, enquiry) ---------- */
+.r-app .public-header { background: rgba(255, 255, 255, .8); backdrop-filter: blur(14px) saturate(1.3); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 30; }
+.r-app .brand-symbol { background: var(--sun-grad); color: #2b1500; box-shadow: 0 8px 18px -8px rgba(255, 122, 43, .8); }
+.r-app .marketing { background: transparent; }
+.r-app .landing-title { letter-spacing: -.045em; }
+.r-app .landing-title span { background: var(--sun-grad); -webkit-background-clip: text; background-clip: text; color: transparent !important; }
+.r-app .solar-story {
+  background: var(--night-grad) !important; border: 0 !important; position: relative; overflow: hidden;
+  box-shadow: 0 30px 60px -28px rgba(10, 27, 44, .85);
+}
+.r-app .solar-story::before { content: ""; position: absolute; right: -70px; top: -70px; width: 220px; height: 220px; border-radius: 50%; background: var(--sun-grad); opacity: .85; box-shadow: 0 0 90px 30px rgba(255, 154, 31, .45); }
+.r-app .solar-story > * { position: relative; }
+.r-app .returning-customer { background: var(--night-grad) !important; position: relative; overflow: hidden; }
+.r-app .returning-customer::after { content: ""; position: absolute; right: -50px; bottom: -80px; width: 220px; height: 220px; border-radius: 50%; background: var(--sun-grad); opacity: .25; }
+.r-app .landing-hero.MuiContainer-root { position: relative; }
+.r-app section[id="calculator"] { background: linear-gradient(180deg, #fffaf0, #fff4de) !important; }
+.r-app .auth-story { background: var(--night-grad); }
+.r-app .enquiry-summary { border-radius: var(--card-r); box-shadow: var(--card-sh); }
+
+@media (prefers-reduced-motion: reduce) {
+  .r-app *, .r-app *::before, .r-app *::after { transition: none !important; animation: none !important; transform: none !important; }
+}
+
+/* contrast: text-style buttons and links use the deep amber, never the bright gradient amber */
+.r-app .MuiButton-text, .r-app .MuiButton-text.MuiButton-colorPrimary, .r-app .MuiButton-text.MuiButton-colorSecondary { color: var(--brand-d); }
+.r-app .MuiButton-text:hover { background: var(--brand-soft); }
