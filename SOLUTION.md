@@ -428,6 +428,8 @@ Run it **split-screen:** Anita's portal in a phone-sized window on one side, the
 
 ## 9. Architecture
 
+> **As built:** Django 5 (Python) + SQLite, server-rendered templates, hand-written offline CSS/JS. See HANDOFF.md. The Next.js/Prisma text below was the original default and is superseded; the data model, rules and screens are unchanged.
+
 ### Default stack (swap if your team is faster elsewhere; the model and rules do not change)
 - **Next.js (App Router, TypeScript) + Prisma + SQLite** (zero setup; move to Postgres only if you need a hosted copy). **zod** for validation, **date-fns** for dates, **Tailwind + shadcn/ui**, **Recharts**.
 - If the team is Python-first: **Django** works well. Its admin gives you product, template and parts-list CRUD for free, and signals suit the automations. Django's built-in auth also covers customer login.
