@@ -26,6 +26,8 @@ DEFAULTS = {
     "company_address": "14, Solar Park Road, Whitefield, Bengaluru 560066",
     "company_gstin": "29ABCDE1234F1Z5",
     "company_phone": "080 4000 1234",
+    "company_upi": "sunpower.solutions@upi",
+    "company_bank": "SunPower Solutions, A/C 5010 0123 4567 89, IFSC SUNB0000123",
 }
 
 

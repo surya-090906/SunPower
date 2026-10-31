@@ -1,0 +1,22 @@
+{% extends "portal/base.html" %}
+{% block title %}My projects{% endblock %}
+{% block content %}
+<section class="hero mb">
+  <h1>Hello, {{ user.first_name|default:user.display_name }}</h1>
+  <p style="margin:.4rem 0 1rem;max-width:380px">Follow your solar project, documents and warranty in one place.</p>
+  <a class="btn btn-primary" href="/enquire/">New enquiry</a>
+</section>
+{% if open_requests %}<a class="pcard mb row" href="/portal/requests/" style="gap:.8rem"><span class="badge b-amber">{{ open_requests }} open</span><span class="grow"><b>Service requests</b><br><span class="small muted">Tap to see the status or confirm a repair.</span></span><span>›</span></a>{% endif %}
+<div class="stack">
+{% for c in cards %}
+  <a class="pcard" href="/portal/p/{{ c.p.id }}/">
+    <div class="spread"><div><b>{{ c.p.title }}</b><div class="small muted">{{ c.p.code }} · {{ c.p.site_address|truncatechars:48 }}</div></div><span class="badge {{ c.p.stage|stage_class }}">{{ c.t.label }}</span></div>
+    <div class="hsteps mt-s mb-s">{% for s in c.t.steps %}<i class="{{ s.state }}"></i>{% endfor %}</div>
+    <div class="small">{{ c.t.next }}</div>
+    {% if c.t.cta %}<div class="mt-s"><span class="btn btn-primary btn-sm">{{ c.t.cta.0 }}</span></div>{% endif %}
+  </a>
+{% empty %}
+  <div class="pcard center"><p class="muted">You have no projects yet.</p><a class="btn btn-primary" href="/enquire/">Get a solar quote</a></div>
+{% endfor %}
+</div>
+{% endblock %}

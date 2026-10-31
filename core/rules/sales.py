@@ -23,6 +23,7 @@ class EnquiryResult:
     customer: Customer
     user: User | None = None      # set only when this call created a portal login
     repeat: bool = False
+    new_customer: bool = False    # True only when this call created the Customer record
 
 
 def _least_loaded_sales():
@@ -101,7 +102,7 @@ def submit_enquiry(*, name, phone, address, pincode, kind, segment="home", reque
     if existing and (clock.now() - existing.created_at) < timedelta(days=30):
         log(existing, f"Repeat enquiry received via {source_label}; attached to this project.", actor=actor)
         notify(existing.owner, f"Repeat enquiry: {existing.code}", customer.name, link=f"/app/p/{existing.id}/")
-        return EnquiryResult(existing, customer, new_user, repeat=True)
+        return EnquiryResult(existing, customer, new_user, repeat=True, new_customer=created)
 
     owner = _least_loaded_sales()
     project = Project.objects.create(
@@ -117,7 +118,7 @@ def submit_enquiry(*, name, phone, address, pincode, kind, segment="home", reque
     message_customer(project, "enquiry_received",
                      f"Hi {customer.name.split(' ')[0]}, we received your enquiry {project.code} for a {project.title} system. "
                      f"We'll call you within {mins} minutes.", path="/portal/")
-    return EnquiryResult(project, customer, new_user)
+    return EnquiryResult(project, customer, new_user, new_customer=created)
 
 
 # ------------------------------------------------------------------ lost

@@ -1,0 +1,53 @@
+{% extends base_template %}
+{% block title %}Get a solar quote{% endblock %}
+{% block content %}
+{% if base_template == "public/base.html" %}<h1>Tell us about your roof</h1>
+<p class="muted mb">Two minutes. We call you within 30 minutes to check the basics. Your details go straight to our sales team.</p>{% else %}<div class="mb"><h1>New enquiry</h1><p class="muted">Another system or another property? Tell us what you need.</p></div>{% endif %}
+<form method="post" class="stack">
+  {% csrf_token %}
+  <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
+  <div class="card"><div class="card-b">
+    <h3 class="mb-s">About you</h3>
+    <div class="fields">
+      <div class="field full"><label for="name">Full name</label><input id="name" class="inp" name="name" value="{{ form.name }}" {% if customer %}readonly{% endif %} required autocomplete="name"></div>
+      <div class="field"><label for="phone">Mobile number</label><input id="phone" class="inp" name="phone" value="{{ form.phone }}" inputmode="numeric" placeholder="98450 00000" {% if customer %}readonly{% endif %} required autocomplete="tel"></div>
+      <div class="field"><label for="email">Email <span class="faint">(optional)</span></label><input id="email" class="inp" type="email" name="email" value="{{ form.email }}" autocomplete="email"></div>
+    </div>
+  </div></div>
+  <div class="card"><div class="card-b">
+    <h3 class="mb-s">The site</h3>
+    <div class="fields">
+      <div class="field full"><label for="address">Installation address</label><textarea id="address" class="inp" name="address" rows="2" required>{{ form.address }}</textarea></div>
+      <div class="field"><label for="city">City</label><input id="city" class="inp" name="city" value="{{ form.city|default:'Bengaluru' }}"></div>
+      <div class="field"><label for="pin">Pincode</label><input id="pin" class="inp" name="pincode" value="{{ form.pincode }}" inputmode="numeric" maxlength="6" required></div>
+      <div class="field"><label for="segment">Property</label><select id="segment" class="inp" name="segment"><option value="home" {% if form.segment == "home" %}selected{% endif %}>Home</option><option value="factory" {% if form.segment == "factory" %}selected{% endif %}>Small factory</option></select></div>
+      <div class="field"><label for="roof">Roof type</label><select id="roof" class="inp" name="roof"><option value="">Not sure</option><option value="rcc" {% if form.roof == "rcc" %}selected{% endif %}>RCC (concrete)</option><option value="tin" {% if form.roof == "tin" %}selected{% endif %}>Tin shed</option></select></div>
+    </div>
+  </div></div>
+  <div class="card"><div class="card-b">
+    <h3 class="mb-s">What you need</h3>
+    <div class="fields">
+      <div class="field"><label for="package">System</label><select id="package" class="inp" name="package">
+        <option value="ongrid" {% if form.package == "ongrid" %}selected{% endif %}>On-Grid (connected to the electricity grid)</option>
+        <option value="offgrid" {% if form.package == "offgrid" %}selected{% endif %}>Off-Grid (with battery backup)</option>
+        <option value="panelset" {% if form.package == "panelset" %}selected{% endif %}>Solar panel set only (hardware)</option>
+        <option value="unsure" {% if form.package == "unsure" %}selected{% endif %}>Not sure yet</option></select></div>
+      <div class="field"><label for="kw">Capacity</label><select id="kw" class="inp" name="kw">{% for k in "12345" %}<option value="{{ k }}" {% if form.kw == k or not form.kw and k == "3" %}selected{% endif %}>{{ k }} kW</option>{% endfor %}</select></div>
+      <div class="field"><label for="bill">Monthly electricity bill (₹)</label><input id="bill" class="inp" name="bill" value="{{ form.bill }}" inputmode="numeric" placeholder="3400"></div>
+      <div class="field"><label for="area">Shadow-free roof area (sq ft)</label><input id="area" class="inp" name="area" value="{{ form.area }}" inputmode="numeric" placeholder="about 400"></div>
+      <div class="field"><label for="load">Sanctioned load (kW) <span class="faint">if known</span></label><input id="load" class="inp" name="load" value="{{ form.load }}" inputmode="decimal"></div>
+      <div class="field"><label for="discom">Electricity board <span class="faint">if known</span></label><input id="discom" class="inp" name="discom" value="{{ form.discom }}" list="discoms" placeholder="BESCOM"><datalist id="discoms"><option>BESCOM</option><option>HESCOM</option><option>MESCOM</option><option>GESCOM</option><option>CESC Mysore</option></datalist></div>
+      <label class="check full"><input type="checkbox" name="subsidy" value="1" {% if form.subsidy %}checked{% endif %}><span><b>I want to apply for the government rooftop subsidy</b><br><span class="small muted">Applies to On-Grid systems at homes. We handle the paperwork steps and show you the status.</span></span></label>
+    </div>
+  </div></div>
+  <div class="card"><div class="card-b">
+    <h3 class="mb-s">Almost done</h3>
+    <div class="fields">
+      <div class="field"><label for="ct">Best time to call</label><select id="ct" class="inp" name="call_time"><option value="">Any time</option><option>Morning</option><option>Afternoon</option><option>Evening</option></select></div>
+      <div class="field full"><label for="notes">Anything else we should know?</label><textarea id="notes" class="inp" name="notes" rows="2">{{ form.notes }}</textarea></div>
+      {% if not customer %}<div class="field full"><label for="pw">Create a password to track your project <span class="faint">(optional)</span></label><input id="pw" class="inp" type="password" name="password" autocomplete="new-password" minlength="6" placeholder="At least 6 characters"><span class="hint">With a password you can follow your project, approve the quote and see your warranty. Skip it and we still call you.</span></div>{% endif %}
+    </div>
+  </div></div>
+  <button class="btn btn-primary btn-lg btn-block">Send my enquiry</button>
+</form>
+{% endblock %}

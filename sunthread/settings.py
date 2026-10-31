@@ -47,7 +47,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "core.context.ui",
             ],
-            "builtins": ["core.templatetags.sun"],
+            "builtins": ["core.templatetags.sun", "django.templatetags.static"],
         },
     },
 ]

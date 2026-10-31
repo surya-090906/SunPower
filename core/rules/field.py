@@ -177,3 +177,40 @@ def finish_hardware_sale(project, actor=None):
         customer_message="Delivered. Your invoice is ready in your account.", actor=actor)
     from .accounts import maybe_complete
     maybe_complete(project)
+
+
+# ------------------------------------------------------------------ customer confirms or contests a visit slot
+@transaction.atomic
+def customer_slot(actor, project, kind, confirm, note=""):
+    """The customer confirms the proposed survey/install date or asks for another. Never blocks the workflow."""
+    if actor is None or not actor.is_customer or project.customer.user_id != actor.id:
+        raise RuleError("You can only respond about your own project.", "forbidden")
+    if kind == "survey":
+        obj = project.survey
+        if obj is None or obj.status != Survey.Status.REQUESTED:
+            raise RuleError("There is no survey visit waiting for confirmation.")
+        who, when = [obj.assignee] if obj.assignee else [], obj.scheduled_for
+    elif kind == "install":
+        obj = getattr(project, "job", None)
+        if obj is None or obj.status != InstallJob.Status.SCHEDULED:
+            raise RuleError("There is no installation waiting for confirmation.")
+        who, when = [a.technician for a in obj.assignments.select_related("technician")], obj.scheduled_date
+    else:
+        raise RuleError("Unknown visit type.")
+    label = "survey" if kind == "survey" else "installation"
+    if confirm:
+        obj.customer_confirmed_at, obj.reschedule_request = clock.now(), ""
+        obj.save()
+        log(project, f"Customer confirmed the {label} date ({when:%a %d %b}).",
+            customer_message=f"You confirmed the {label} on {when:%a %d %b}.", actor=actor)
+        notify(who, f"Customer confirmed {label}: {project.code}", f"{project.customer.name}, {when:%a %d %b}", link="/app/field/")
+    else:
+        note = (note or "").strip()
+        if not note:
+            raise RuleError("Tell us which date or time suits you better.")
+        obj.reschedule_request, obj.customer_confirmed_at = note[:300], None
+        obj.save()
+        log(project, f"Customer asked to reschedule the {label}: {note}",
+            customer_message=f"We have your request for a different {label} time and will get back to you.", actor=actor)
+        notify(users_with_role("engineer"), f"Reschedule request: {project.code}", note[:120], link=f"/app/p/{project.id}/")
+        notify(who, f"Customer asked to reschedule: {project.code}", note[:120], link="/app/field/")

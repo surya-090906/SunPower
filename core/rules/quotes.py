@@ -179,3 +179,15 @@ def accept_quote(actor, quote, accepted_by_name, on_behalf_note=""):
            f"{project.customer.name}: {inr(project.advance_required_paise)}", link=f"/app/p/{project.id}/?tab=payments")
     notify(project.owner, f"Quote accepted: {project.code}", project.customer.name, link=f"/app/p/{project.id}/")
     return quote
+
+
+@transaction.atomic
+def ask_question(actor, project, text):
+    """A customer question about their quote or project goes to the owner as a notification and a timeline note."""
+    if actor is None or not actor.is_customer or project.customer.user_id != actor.id:
+        raise RuleError("You can only ask about your own project.", "forbidden")
+    text = (text or "").strip()
+    if not text:
+        raise RuleError("Type your question first.")
+    log(project, f"Customer question: {text[:240]}", customer_message="We received your question and will reply shortly.", actor=actor)
+    notify(project.owner, f"Question from {project.customer.name}", text[:140], link=f"/app/p/{project.id}/")

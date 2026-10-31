@@ -1,0 +1,17 @@
+{% extends "public/base.html" %}
+{% block title %}Shared numbers{% endblock %}
+{% block wide %}public-wide{% endblock %}
+{% block content %}
+{% if expired %}
+<div class="card"><div class="card-b center"><h1>This link has expired</h1><p class="muted mt-s">Snapshot links work for 7 days. Ask for a fresh one.</p></div></div>
+{% else %}
+<div class="mb"><h1>{{ d.company }}: {{ d.label }}</h1><div class="muted small">Read-only snapshot · {{ d.generated }} · customer names are shortened</div></div>
+<div class="grid g2 mb">{% for k in d.kpis %}<div class="pcard"><div class="small muted bold">{{ k.label }}</div><div style="font-size:1.5rem;font-weight:800">{{ k.value }}</div><div class="small muted">{{ k.sub }}{% if k.delta %} · {{ k.delta }}{% endif %}</div></div>{% endfor %}</div>
+<div class="pcard mb" style="padding:0"><div style="padding:.9rem 1.1rem;border-bottom:1px solid var(--line)"><h3>Jobs completed</h3></div><div class="tbl-wrap"><table class="table"><thead><tr><th>Customer</th><th>System</th><th class="num">Revenue</th><th class="num">Profit</th><th class="num">Margin</th></tr></thead><tbody>
+  {% for j in d.jobs %}<tr class="{% if j.loss %}loss{% endif %}"><td>{{ j.name }}</td><td>{{ j.kw }} kW {{ j.type }}</td><td class="num">{{ j.revenue }}</td><td class="num bold">{{ j.profit }}</td><td class="num">{{ j.margin }}</td></tr>{% empty %}<tr><td colspan="5" class="empty">None in this period.</td></tr>{% endfor %}</tbody></table></div></div>
+<div class="grid g2">
+  <div class="pcard" style="padding:0"><div style="padding:.9rem 1.1rem;border-bottom:1px solid var(--line)"><h3>Pipeline</h3></div><div class="tbl-wrap"><table class="table"><tbody>{% for f in d.funnel %}<tr><td>{{ f.label }}</td><td class="num">{{ f.count }}</td><td class="num">{{ f.value }}</td></tr>{% endfor %}</tbody></table></div></div>
+  <div class="pcard" style="padding:0"><div style="padding:.9rem 1.1rem;border-bottom:1px solid var(--line)"><h3>Open repairs</h3></div><div class="tbl-wrap"><table class="table"><tbody>{% for r in d.repairs %}<tr><td class="mono">{{ r.code }}</td><td>{{ r.name }}</td><td>{{ r.status }}</td><td class="num">{{ r.age }} d</td></tr>{% empty %}<tr><td class="empty">None.</td></tr>{% endfor %}</tbody></table></div></div>
+</div>
+{% endif %}
+{% endblock %}
