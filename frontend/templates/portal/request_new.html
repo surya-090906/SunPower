@@ -1,0 +1,19 @@
+{% extends "portal/base.html" %}
+{% block title %}Report a problem{% endblock %}
+{% block content %}
+<a class="small" href="/portal/requests/">‹ Service requests</a>
+<h1 class="mt-s">Report a problem</h1>
+<p class="muted mb">Pick the unit that has the fault. You will see straight away whether it is under warranty.</p>
+{% if not rows %}<div class="pcard center"><p class="muted">You have no delivered equipment yet.</p></div>{% else %}
+<form method="post" class="stack">{% csrf_token %}
+  <div class="pcard"><h3 class="mb-s">Which unit?</h3>
+    {% for r in rows %}<label class="check" style="padding:.55rem 0;border-bottom:1px solid var(--line)"><input type="radio" name="serial" value="{{ r.s.id }}" {% if pick == r.s.id|stringformat:"s" %}checked{% endif %} required>
+      <span class="grow"><b>{{ r.s.product.name }}</b> <span class="badge {{ r.w.css }}">{{ r.w.label }}</span><br><span class="small muted mono">{{ r.s.serial_no }}</span></span></label>{% endfor %}
+  </div>
+  <div class="pcard"><div class="fields">
+    <div class="field"><label for="fc">Fault code on the inverter display</label><input id="fc" class="inp" name="fault_code" value="{{ form.fault_code }}" list="codes" placeholder="E04"><datalist id="codes"><option>E01</option><option>E04</option><option>E07</option><option>E12</option><option>No display</option></datalist></div>
+    <div class="field full"><label for="d">What is happening?</label><textarea id="d" class="inp" name="description" placeholder="For example: no power since the rain last night">{{ form.description }}</textarea></div>
+  </div></div>
+  <button class="btn btn-primary btn-lg btn-block">Send request</button>
+</form>{% endif %}
+{% endblock %}

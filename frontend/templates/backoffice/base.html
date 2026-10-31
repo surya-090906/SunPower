@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="shell">
+  <aside class="sidebar">
+    <a class="brand" href="/app/"><span class="logo"></span><span>SunThread<small>{{ COMPANY }}</small></span></a>
+    <nav class="nav">{% for label, url, active in nav_items %}<a href="{{ url }}" class="{% if active %}active{% endif %}">{{ label }}</a>{% endfor %}</nav>
+    <div class="foot"><b>{{ user.display_name }}</b><br>{{ user.get_role_display }}</div>
+  </aside>
+  <div class="main">
+    <header class="topbar">
+      <form class="search" action="/app/help/" method="get"><input class="inp" type="search" name="q" value="{{ request.GET.q }}" placeholder="Search phone, name, serial, project or ticket"></form>
+      {% include "components/switcher.html" %}
+      {% include "components/bell.html" %}
+      <form method="post" action="/logout/">{% csrf_token %}<button class="btn btn-line btn-sm">Log out</button></form>
+    </header>
+    <main class="content">{% block content %}{% endblock %}</main>
+  </div>
+</div>
+{% endblock %}

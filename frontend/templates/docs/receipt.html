@@ -1,0 +1,15 @@
+{% extends base_template %}
+{% block title %}Receipt{% endblock %}
+{% block content %}
+<div class="toolbar-print"><button class="btn btn-dark" onclick="window.print()">Print / save as PDF</button></div>
+<div class="doc">
+  {% include "docs/_head.html" with doc_title="Payment receipt" doc_no=pay.id doc_date=pay.received_at %}
+  <p style="font-size:1.1rem">Received with thanks <b>{{ pay.amount_paise|inr2 }}</b> from <b>{{ customer.name }}</b>.</p>
+  <table>
+    <tr><th style="width:30%">Towards</th><td>{{ pay.get_kind_display }}</td></tr>
+    <tr><th>Method</th><td>{{ pay.get_method_display }}{% if pay.reference %} · reference {{ pay.reference }}{% endif %}</td></tr>
+    <tr><th>Received on</th><td>{{ pay.received_at|dtm }}</td></tr>
+    <tr><th>Total paid so far</th><td>{{ p.confirmed_paid_paise|inr2 }}</td></tr>
+  </table>
+</div>
+{% endblock %}
