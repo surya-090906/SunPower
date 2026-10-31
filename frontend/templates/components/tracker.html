@@ -1,3 +1,0 @@
-<ol class="steps">
-{% for s in t.steps %}<li class="{{ s.state }}"><span class="dot">{% if s.state == "done" %}✓{% else %}{{ s.n }}{% endif %}</span><div><div class="lbl">{{ s.label }}</div>{% if s.note %}<div class="note">{{ s.note }}</div>{% endif %}</div></li>{% endfor %}
-</ol>
