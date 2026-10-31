@@ -26,14 +26,14 @@ def _group_indian(n: int) -> str:
 
 
 def inr(paise, with_paise: bool = False) -> str:
-    """Format paise as ₹1,50,000 (negative as -₹1,000)."""
+    """Format paise as ₹1,50,000 (negative as -₹1,000). Whole rupees unless with_paise=True."""
     if paise is None or paise == "":
         return "–"
     paise = int(paise)
     sign = "-" if paise < 0 else ""
     paise = abs(paise)
-    whole, frac = divmod(paise, 100)
-    out = f"{sign}₹{_group_indian(whole)}"
-    if with_paise or frac:
-        out += f".{frac:02d}"
-    return out
+    if with_paise:
+        whole, frac = divmod(paise, 100)
+        return f"{sign}₹{_group_indian(whole)}.{frac:02d}"
+    whole = (paise + 50) // 100
+    return f"{sign}₹{_group_indian(whole)}" if whole else "₹0"

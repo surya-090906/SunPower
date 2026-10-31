@@ -236,4 +236,7 @@ def confirm_delivery(actor, dispatch, received_by="", delivered_at=None):
     notify_customer(project.customer, "Delivered: warranty started", "Your warranty card is ready", link="/portal/systems/")
     message_customer(project, "delivered", f"Your equipment for {project.code} was delivered and your warranty has started.",
                      path="/portal/systems/")
+    if project.kind == Project.Kind.PANELSET:
+        from .field import finish_hardware_sale
+        finish_hardware_sale(project, actor)
     return dispatch

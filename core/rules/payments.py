@@ -67,24 +67,27 @@ def _confirm_order(project, actor=None):
         dispatch.status = Dispatch.Status.AWAITING_STOCK
         dispatch.save(update_fields=["status"])
 
-    job = schedule_install(project, awaiting_stock=bool(short))
+    job = None if project.kind == Project.Kind.PANELSET else schedule_install(project, awaiting_stock=bool(short))
     if project.wants_subsidy:
         _create_subsidy_tasks(project)
 
-    crew = ", ".join(a.technician.display_name for a in job.assignments.select_related("technician"))
+    crew = ", ".join(a.technician.display_name for a in job.assignments.select_related("technician")) if job else ""
+    if job:
+        plan = f"install scheduled for {job.scheduled_date:%a %d %b} ({crew or 'no crew free'})"
+        cplan = f"Installation is planned for {job.scheduled_date:%a %d %b %Y}."
+    else:
+        plan, cplan = "hardware-only sale, no installation", "Your equipment will be delivered to you."
     log(project, f"Order confirmed: advance received. Pick list {dispatch.code} created"
-        + (" (waiting for stock)" if short else "")
-        + f"; install scheduled for {job.scheduled_date:%a %d %b} ({crew or 'no crew free'}).",
-        customer_message=f"Order confirmed. Installation is planned for {job.scheduled_date:%a %d %b %Y}.", actor=actor)
+        + (" (waiting for stock)" if short else "") + f"; {plan}.",
+        customer_message=f"Order confirmed. {cplan}", actor=actor)
     notify(users_with_role("warehouse"), f"Pack order {project.code}",
            f"{dispatch.lines.count()} items for {project.customer.name}" + (" (short on stock)" if short else ""),
            link=f"/app/inventory/dispatch/{dispatch.id}/")
-    notify([a.technician for a in job.assignments.select_related("technician")], f"New install job: {project.code}",
-           f"{project.customer.name}, {job.scheduled_date:%a %d %b}", link="/app/field/")
-    notify_customer(project.customer, "Order confirmed", f"Installation on {job.scheduled_date:%d %b %Y}", link=f"/portal/p/{project.id}/")
-    message_customer(project, "order_confirmed",
-                     f"Your order {project.code} is confirmed. Installation is planned for {job.scheduled_date:%a %d %b %Y}.",
-                     path=f"/portal/p/{project.id}/")
+    if job:
+        notify([a.technician for a in job.assignments.select_related("technician")], f"New install job: {project.code}",
+               f"{project.customer.name}, {job.scheduled_date:%a %d %b}", link="/app/field/")
+    notify_customer(project.customer, "Order confirmed", cplan, link=f"/portal/p/{project.id}/")
+    message_customer(project, "order_confirmed", f"Your order {project.code} is confirmed. {cplan}", path=f"/portal/p/{project.id}/")
 
 
 def after_payment(project, actor=None):

@@ -159,3 +159,21 @@ def complete_install(actor, job, *, started_at, finished_at, kw_confirmed, kw_no
     from .accounts import maybe_complete
     maybe_complete(project)
     return job
+
+
+def finish_hardware_sale(project, actor=None):
+    """A Panel Set sale has nothing to install: delivery books the revenue and raises the invoice."""
+    quote = project.accepted_quote
+    project.installed_at = clock.now()
+    project.save(update_fields=["installed_at"])
+    set_stage(project, Project.Stage.INSTALLED)
+    post_ledger(project, "revenue", "contract", project.contract_value_paise, "project", project.id, "Hardware sale booked at delivery")
+    invoice = _create_final_invoice(project, quote)
+    balance = project.balance_due_paise
+    if balance > 0:
+        add_task(project, "collect_balance", f"Collect balance {inr(balance)} from {project.customer.name}", "accounts",
+                 due_in=timedelta(days=7))
+    log(project, f"Hardware sale delivered. Final invoice {invoice.number}, balance {inr(balance)}.",
+        customer_message="Delivered. Your invoice is ready in your account.", actor=actor)
+    from .accounts import maybe_complete
+    maybe_complete(project)

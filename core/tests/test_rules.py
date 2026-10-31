@@ -500,3 +500,25 @@ class Invariants(Base):
         from datetime import date
         from core.utils import next_working_day
         self.assertEqual(next_working_day(date(2026, 11, 1)), date(2026, 11, 2))     # a Sunday -> Monday
+
+
+class HardwareOnly(Base):
+    def test_panel_set_sale_completes_at_delivery_without_install(self):
+        p = sim.enquire(kind="panelset", kw=2, subsidy=False)
+        rules.record_qualification(sim.actor(Role.SALES), p, notes="Hardware only")
+        sim.quote(p)
+        sim.accept(p)
+        sim.pay(p)
+        p.refresh_from_db()
+        self.assertEqual(p.stage, "ordered")
+        self.assertFalse(hasattr(p, "job") and p.__class__.objects.filter(pk=p.pk, job__isnull=False).exists())
+        sim.top_up_for(p)
+        sim.dispatch(p)
+        sim.deliver(p)
+        p.refresh_from_db()
+        self.assertEqual(p.stage, "installed")
+        self.assertEqual(p.ledger.filter(category="contract").count(), 1)
+        self.assertTrue(Serial.objects.filter(project=p, warranty_end__isnull=False).exists())
+        sim.pay_balance(p)
+        p.refresh_from_db()
+        self.assertEqual(p.stage, "completed")
