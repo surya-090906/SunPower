@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8">
+<title>Asset Label · {{ s.serial_no }}</title>
+<style>
+@page {
+  size: 3.5in 2.2in;
+  margin: 0.1in;
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+  background: #f8fafc;
+  color: #0f172a;
+  margin: 0;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.actions {
+  margin-bottom: 1rem;
+}
+.btn {
+  display: inline-block;
+  background: #0284c7;
+  color: #fff;
+  padding: .5rem 1rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: .9rem;
+  border: none;
+  cursor: pointer;
+}
+.label-card {
+  width: 3.3in;
+  height: 2.0in;
+  border: 2px dashed #94a3b8;
+  border-radius: 8px;
+  background: #fff;
+  padding: .5rem .7rem;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1.5px solid #0f172a;
+  padding-bottom: .25rem;
+}
+.co-name {
+  font-weight: 800;
+  font-size: .85rem;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  color: #0284c7;
+}
+.tag-badge {
+  font-size: .65rem;
+  font-weight: 700;
+  background: #0f172a;
+  color: #fff;
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+.prod-info {
+  margin-top: .2rem;
+}
+.prod-name {
+  font-size: .82rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.serial-box {
+  margin: .2rem 0;
+  text-align: center;
+}
+.serial-no {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+.barcode-svg {
+  width: 90%;
+  height: 24px;
+  margin: 2px auto 0;
+  display: block;
+}
+.meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  font-size: .68rem;
+  border-top: 1px solid #e2e8f0;
+  padding-top: .25rem;
+  color: #475569;
+}
+@media print {
+  body {
+    background: #fff;
+    padding: 0;
+  }
+  .actions {
+    display: none;
+  }
+  .label-card {
+    border: none;
+    box-shadow: none;
+    width: 100%;
+    height: 100%;
+    padding: .1in;
+  }
+}
+</style>
+</head>
+<body>
+  <div class="actions">
+    <button class="btn" onclick="window.print()">🖨️ Print Label</button>
+  </div>
+  <div class="label-card">
+    <div class="header">
+      <span class="co-name">{{ co.name|default:"SunThread Solar" }}</span>
+      <span class="tag-badge">ASSET TAG</span>
+    </div>
+    <div class="prod-info">
+      <div class="prod-name">{{ s.product.name }}</div>
+      <div style="font-size:.68rem;color:#64748b">{{ s.product.get_category_display }} · {{ s.product.sku }}</div>
+    </div>
+    <div class="serial-box">
+      <div class="serial-no">{{ s.serial_no }}</div>
+      <svg class="barcode-svg" viewBox="0 0 {{ total_w }} 24" preserveAspectRatio="none">
+        {% for x, w in bars %}
+          <rect x="{{ x }}" y="0" width="{{ w }}" height="24" fill="#000" />
+        {% endfor %}
+      </svg>
+    </div>
+    <div class="meta-row">
+      <div>
+        {% if s.project %}
+          <b>{{ s.project.code }}</b> · {{ s.project.customer.name|truncatechars:18 }}
+        {% else %}
+          <b>IN WAREHOUSE STOCK</b>
+        {% endif %}
+      </div>
+      <div style="text-align:right">
+        {% if w.end %}
+          WTY: <b>{{ w.end|date:"M Y" }}</b>
+        {% else %}
+          WTY: <b>{{ s.warranty_months|default:"–" }} mo</b>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</body>
+</html>

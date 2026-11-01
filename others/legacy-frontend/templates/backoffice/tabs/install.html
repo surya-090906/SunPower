@@ -1,0 +1,15 @@
+{% if p.kind == "panelset" %}<div class="banner info"><span class="ico">i</span><div>Hardware-only sale: nothing to install. Delivery completes the sale.</div></div>
+{% elif not job %}<div class="gate">The install job is scheduled automatically when the order is confirmed.</div>
+{% else %}
+<div class="grid g-main">
+  <div class="card"><div class="card-h"><div class="row"><h2>Install job</h2><span class="badge {{ job.status|status_class }}">{{ job.get_status_display }}</span></div><span class="small muted">{{ job.scheduled_date|date:"l, d M Y" }}</span></div><div class="card-b">
+    <div class="row mb-s">{% if job.customer_confirmed_at %}<span class="badge b-green">Customer confirmed the date</span>{% elif job.status == "scheduled" %}<span class="badge b-grey">Customer has not confirmed</span>{% endif %}{% if job.reschedule_request %}<span class="badge b-amber">Reschedule asked: {{ job.reschedule_request|truncatechars:80 }}</span>{% endif %}</div>
+    <dl class="kv"><dt>Crew</dt><dd>{% for a in assignments %}{{ a.technician.display_name }}{% if a.role == "lead" %} (lead){% endif %}{% if a.present %} ✓{% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}</dd>
+    {% if job.status == "signed_off" %}<dt>Installed</dt><dd>{{ job.kw_confirmed|qty }} kW in {{ job.hours|qty }} h ({{ job.started_at|dtm }})</dd><dt>Generation test</dt><dd>{{ job.test_reading_kw|qty }} kW</dd><dt>Signed by</dt><dd>{{ job.signed_by }} · {{ job.signed_at|dtm }}</dd>{% if job.kw_note %}<dt>Size note</dt><dd>{{ job.kw_note }}</dd>{% endif %}{% endif %}</dl>
+    {% if job.status == "scheduled" and p.stage == "delivered" %}<div class="mt"><a class="btn btn-primary" href="/app/field/install/{{ job.id }}/">Open the install form</a></div>
+    {% elif job.status == "scheduled" %}<div class="gate mt">The install form opens once the equipment is delivered.</div>{% endif %}
+    {% if job.status == "signed_off" %}<div class="mt"><a class="btn btn-line" href="/doc/handover/{{ p.id }}/">Handover certificate</a></div>{% endif %}
+  </div></div>
+  <div class="card"><div class="card-h"><h2>Photos ({{ photos|length }})</h2></div><div class="card-b"><div class="thumbs">{% for ph in photos %}<a class="thumb" href="{{ ph.file.url }}" target="_blank"><img src="{{ ph.file.url }}" alt=""><span class="k">{{ ph.kind|default:"photo" }}</span></a>{% empty %}<span class="muted small">No photos yet.</span>{% endfor %}</div>
+    {% if job.signature %}<hr><div class="small muted">Customer signature</div><img src="{{ job.signature }}" alt="signature" style="max-height:90px;background:#fff;border-radius:8px;padding:4px">{% endif %}</div></div>
+</div>{% endif %}

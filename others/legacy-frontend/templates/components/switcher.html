@@ -1,0 +1,9 @@
+{% if DEMO_MODE and demo_users %}
+<form method="post" action="/demo/switch/" class="row" title="Demo mode: switch user without a password">
+  {% csrf_token %}
+  <select class="inp" name="user" data-autosubmit style="width:auto;max-width:210px;padding:.4rem .6rem">
+    <option value="">Switch user…</option>
+    {% for u in demo_users %}<option value="{{ u.id }}" {% if u.id == user.id %}selected{% endif %}>{{ u.display_name }} · {{ u.get_role_display }}</option>{% endfor %}
+  </select>
+</form>
+{% endif %}

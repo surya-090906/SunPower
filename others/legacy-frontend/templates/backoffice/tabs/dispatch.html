@@ -1,0 +1,8 @@
+{% for d in dispatches %}
+<div class="card mb"><div class="card-h"><div class="row"><h2>{{ d.code }}</h2><span class="badge {{ d.status|status_class }}">{{ d.get_status_display }}</span></div>
+  <div class="row">{% if d.status == "dispatched" or d.status == "delivered" %}<a class="btn btn-line btn-sm" href="/doc/delivery/{{ d.id }}/">Delivery note</a>{% endif %}
+  {% if user.role == "warehouse" or user.role == "director" %}<a class="btn btn-dark btn-sm" href="/app/inventory/dispatch/{{ d.id }}/">Open pick screen</a>{% endif %}</div></div>
+<div class="card-b tight tbl-wrap"><table class="table"><thead><tr><th>Item</th><th class="num">Required</th><th class="num">Picked</th></tr></thead><tbody>
+  {% for l in d.lines.all %}<tr><td>{{ l.product.name }}{% if l.product.tracked_by_serial %} <span class="badge b-blue">serial</span>{% endif %}</td><td class="num">{{ l.qty_required|qty }}</td><td class="num">{% if l.complete %}<span class="badge b-green">{{ l.qty_picked|qty }}</span>{% else %}{{ l.qty_picked|qty }}{% endif %}</td></tr>{% endfor %}</tbody></table></div>
+<div class="card-b small muted">{% if d.dispatched_at %}Dispatched {{ d.dispatched_at|dtm }}{% if d.vehicle_no %} · {{ d.vehicle_no }}{% endif %}{% if d.driver_name %} · {{ d.driver_name }}{% endif %}{% endif %}{% if d.delivered_at %} · delivered {{ d.delivered_at|dtm }}{% if d.received_by %} · received by {{ d.received_by }}{% endif %}{% endif %}{% if d.truck_value_paise and user.role in "director accounts warehouse" %} · value on truck {{ d.truck_value_paise|inr }} at cost{% endif %}</div></div>
+{% empty %}<div class="gate">The pick list is created automatically when the advance is received and the order is confirmed.</div>{% endfor %}

@@ -1,0 +1,23 @@
+{% extends base_template %}
+{% block title %}Handover certificate {{ p.code }}{% endblock %}
+{% block content %}
+<div class="toolbar-print"><button class="btn btn-dark" onclick="window.print()">Print / save as PDF</button></div>
+<div class="doc">
+  {% include "docs/_head.html" with doc_title="Handover certificate" doc_no=p.code doc_date=job.signed_at %}
+  <p>This certifies that the solar system below was installed, tested and handed over at the address above.</p>
+  <table>
+    <tr><th style="width:30%">System installed</th><td><b>{{ job.kw_confirmed|qty }} kW {{ p.get_kind_display }}</b>{% if job.kw_note %} ({{ job.kw_note }}){% endif %}</td></tr>
+    <tr><th>Installed on</th><td>{{ job.started_at|dtm }} to {{ job.finished_at|hm }} ({{ job.hours|qty }} hours)</td></tr>
+    <tr><th>Generation test</th><td>{{ job.test_reading_kw|qty }} kW measured at handover</td></tr>
+    <tr><th>Installation crew</th><td>{{ crew|join:", " }}</td></tr>
+    <tr><th>Checks completed</th><td>Stands mounted · panels laid · boxes connected · earthing done · generation tested</td></tr>
+  </table>
+  <h3 style="margin-top:1.2rem">Equipment and warranty</h3>
+  <table><thead><tr><th>Item</th><th>Serial number</th><th>Warranty until</th></tr></thead>
+  <tbody>{% for u in units %}<tr><td>{{ u.s.product.name }}</td><td class="mono">{{ u.s.serial_no }}</td><td>{{ u.w.end|dmy }}</td></tr>{% endfor %}</tbody></table>
+  {% if photos %}<h3 style="margin-top:1.2rem">Photographs of the finished installation</h3><div class="photos">{% for ph in photos %}<img src="{{ ph.file.url }}" alt="{{ ph.kind }}">{% endfor %}</div>{% endif %}
+  <div class="sig" style="margin-top:1.5rem"><div style="font-size:11px;text-transform:uppercase;color:#6b7280">Accepted by the customer</div>
+    {% if job.signature %}<img src="{{ job.signature }}" alt="Customer signature">{% endif %}
+    <div><b>{{ job.signed_by }}</b> · {{ job.signed_at|dtm }}{% if job.geo_lat %} · captured on site ({{ job.geo_lat }}, {{ job.geo_lng }}){% endif %}</div></div>
+</div>
+{% endblock %}

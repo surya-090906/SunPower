@@ -1,0 +1,6 @@
+<div class="grid g-main">
+  <div class="card"><div class="card-h"><h2>Timeline</h2><span class="small muted">Every automatic action is recorded here. <span class="badge b-blue">customer sees</span> marks what the customer was told.</span></div>
+    <div class="card-b"><ul class="tl">{% for e in events %}<li><span class="when">{{ e.at|dtm }}</span><span class="what">{{ e.message }}{% if e.customer_message %} <span class="badge b-blue">customer sees</span>{% endif %}</span><span class="who">{{ e.actor.first_name|default:"system" }}</span></li>{% empty %}<li class="muted">Nothing yet.</li>{% endfor %}</ul></div></div>
+  <div class="card"><div class="card-h"><h2>Messages to the customer</h2></div><div class="card-b stack">
+    {% for m in messages_log %}<div class="small"><div class="muted">{{ m.created_at|dtm }}</div><div>{{ m.body|truncatechars:140 }}</div>{% if m.wa_link %}<a href="{{ m.wa_link }}" target="_blank" rel="noopener">Open in WhatsApp ›</a>{% endif %}</div>{% empty %}<div class="muted small">None yet.</div>{% endfor %}</div></div>
+</div>

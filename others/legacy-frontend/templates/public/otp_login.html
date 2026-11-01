@@ -1,0 +1,63 @@
+{% extends "public/base.html" %}
+{% block title %}Log in with OTP{% endblock %}
+{% block content %}
+{% include "public/_auth_nav.html" %}
+<div class="card"><div class="card-b">
+  <h1>Log in with OTP</h1>
+  <p class="muted">Enter your registered mobile number to receive a one-time verification code.</p>
+
+  {% if step == "verify" %}
+  <form method="post" class="stack mt">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="verify">
+    <input type="hidden" name="step" value="verify">
+    <input type="hidden" name="phone" value="{{ phone }}">
+    <input type="hidden" name="next" value="{{ next }}">
+
+    <div class="field">
+      <label>Mobile number</label>
+      <div class="spread">
+        <b>+91 {{ phone }}</b>
+        <a href="{% url 'otp_login' %}" class="small">Change</a>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="otp">Enter 6-digit OTP</label>
+      <input id="otp" class="inp mono" name="otp" inputmode="numeric" maxlength="6" placeholder="• • • • • •" data-autofocus required style="font-size:1.4rem;letter-spacing:.3rem;text-align:center">
+      <span class="hint">In demo mode, your OTP is displayed in the alert banner above.</span>
+    </div>
+
+    <button class="btn btn-primary btn-lg btn-block">Verify &amp; Log in</button>
+  </form>
+
+  <form method="post" class="mt-s" style="text-align:center">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="send">
+    <input type="hidden" name="phone" value="{{ phone }}">
+    <button class="btn btn-line btn-sm" type="submit">Resend code</button>
+  </form>
+
+  {% else %}
+  <form method="post" class="stack mt">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="send">
+    <input type="hidden" name="next" value="{{ next }}">
+
+    <div class="field">
+      <label for="ph">10-digit mobile number</label>
+      <input id="ph" class="inp" name="phone" value="{{ phone }}" inputmode="numeric" maxlength="10" placeholder="e.g. 9886000101" data-autofocus required>
+      <span class="hint">Use the mobile number registered with your customer account.</span>
+    </div>
+
+    <button class="btn btn-primary btn-lg btn-block">Send OTP</button>
+  </form>
+  {% endif %}
+
+  <hr>
+  <div class="spread small muted">
+    <a href="{% url 'login' %}">← Use password instead</a>
+    <a href="/enquire/">New customer? Enquire</a>
+  </div>
+</div></div>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "public/base.html" %}
+{% block title %}Log in{% endblock %}
+{% block content %}
+{% include "public/_auth_nav.html" %}
+<div class="card"><div class="card-b">
+  <h1>Log in</h1>
+  <p class="muted">Use your mobile number or email.</p>
+  <form method="post" class="stack mt">
+    {% csrf_token %}<input type="hidden" name="next" value="{{ next }}">
+    <div class="field"><label for="u">Mobile number or email</label><input id="u" class="inp" name="username" autocomplete="username" inputmode="email" data-autofocus required></div>
+    <div class="field"><label for="p">Password</label><input id="p" class="inp" type="password" name="password" autocomplete="current-password" required></div>
+    <button class="btn btn-primary btn-lg btn-block">Log in</button>
+  </form>
+  <div class="mt-s" style="text-align:center">
+    <a href="{% url 'otp_login' %}" class="btn btn-line btn-sm" style="display:inline-block">📲 Log in with OTP instead</a>
+  </div>
+  <hr><p class="small muted">SunPower Solutions · Rooftop solar, connected. Your project details stay in your account.</p>
+</div></div>
+{% endblock %}
