@@ -1,9 +1,0 @@
-{% extends "backoffice/base.html" %}
-{% block title %}Pick lists{% endblock %}
-{% block content %}
-<div class="page-head"><div><h1>Pick lists and dispatch</h1><div class="sub">Created automatically when an order is confirmed. Nothing leaves the warehouse until every serial is scanned.</div></div></div>
-<div class="tabs">{% for k, l in statuses %}<a href="?status={{ k }}" class="{% if status == k %}active{% endif %}">{{ l }}</a>{% endfor %}</div>
-<div class="card"><div class="card-b tight tbl-wrap"><table class="table"><thead><tr><th>Pick list</th><th>Customer</th><th>Order</th><th>Items</th><th>Status</th><th></th></tr></thead><tbody>
-  {% for d in rows %}<tr><td class="mono"><a href="/app/inventory/dispatch/{{ d.id }}/">{{ d.code }}</a></td><td>{{ d.project.customer.name }}<div class="tiny faint">{{ d.project.code }}</div></td><td>{{ d.project.title }}</td><td>{{ d.lines.count }}</td><td><span class="badge {{ d.status|status_class }}">{{ d.get_status_display }}</span></td><td class="right"><a class="btn btn-line btn-sm" href="/app/inventory/dispatch/{{ d.id }}/">Open</a></td></tr>
-  {% empty %}<tr><td colspan="6" class="empty">Nothing here.</td></tr>{% endfor %}</tbody></table></div></div>
-{% endblock %}
