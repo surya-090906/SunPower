@@ -49,3 +49,14 @@ Enquiry by the customer (password required to create a login; map selection is r
 
 ## Commit history (branch `dev`)
 foundation + models → rules engine + tests → seed → portal + documents + design system → staff app → UI tests/smoke crawl → this documentation. Commits are authored with the machine's git identity plus a `Co-Authored-By` trailer for the AI agent. Teammates must make their own commits for their own work (see TEAM.md); do not fabricate authorship.
+
+## Security review (2026-11-01) and what is still open
+Fixed and covered by `backend/core/tests/test_review_hardening.py`: demo switcher no longer logs in arbitrary users; `DEMO_MODE`, demo checkout and the webhook key are off by default when `DEBUG=0` (`ENQUIRY_API_KEY` env var, empty disables the webhook); uploads are checked by file extension (customer documents also by a fixed `doc_type` list); `setup_real_db` needs `--yes-wipe` on a non-empty database and generates random passwords; only technician/support/engineer/director can record a customer's answer on a ticket (T16).
+
+Not fixed yet, in rough priority:
+- Money: `to_paise` (`backend/core/forms.py`) turns "Rs. 5000" into 50 paise and "1.2.3" raises a 500. Parse strictly and reject anything else.
+- Concurrency: `dispatch_order`, `confirm_delivery` and `verify_payment` check status on an object loaded before the transaction. Re-fetch with `select_for_update` inside the rule. Also add a check that a verified payment cannot push the total past the amount due.
+- Insights: the CSAT tile shows "5.0" when there are no ratings (`backend/core/calc/insights.py`); show a dash instead. The jobs CSV export should prefix cells starting with `= + - @` (customer names are public input).
+- Access: any technician can confirm any dispatch (starts the warranty clock); every staff role can read any project incl. payment references.
+- Robustness: several `int(request.POST[...])` calls in `backoffice/views_crm.py`, `views_help.py`, `views_inventory.py` return 500 on bad input; `target="_blank"` links need `rel="noopener"`; `utils.back()` accepts `/\host` (currently unused).
+- Performance: unbounded lists and N+1 queries on the CRM board, accounting and insights pages; `config.get` hits the database on every call.
