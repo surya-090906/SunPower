@@ -2,6 +2,7 @@
 __pycache__/
 *.pyc
 db.sqlite3
+db.sqlite3.*
 media/
 staticfiles/
 .env
@@ -10,3 +11,8 @@ staticfiles/
 .idea/
 .vscode/
 .DS_Store
+node_modules/
+frontend/dist/
+frontend/coverage/
+others/artifacts/
+.gstack/
