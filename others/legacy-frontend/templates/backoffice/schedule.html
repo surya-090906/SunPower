@@ -1,0 +1,17 @@
+{% extends "backoffice/base.html" %}
+{% block title %}Schedule board{% endblock %}
+{% block content %}
+<div class="page-head"><div><a class="small" href="/app/field/">‹ Field jobs</a><h1 style="margin-top:.3rem">Schedule board</h1><div class="sub">The next seven working days. Assignments are made automatically: least-loaded technicians first.</div></div></div>
+{% if reqs.surveys or reqs.jobs %}<div class="banner warn mb"><span class="ico">↻</span><div><div class="big">Customers asked to reschedule</div><div class="small">
+  {% for s in reqs.surveys %}<div>Survey <a href="/app/p/{{ s.project_id }}/?tab=survey">{{ s.project.customer.name }}</a>: "{{ s.reschedule_request }}"</div>{% endfor %}
+  {% for j in reqs.jobs %}<div>Install <a href="/app/p/{{ j.project_id }}/?tab=install">{{ j.project.customer.name }}</a>: "{{ j.reschedule_request }}"</div>{% endfor %}</div></div></div>{% endif %}
+<div class="grid g2">
+{% for b in board %}
+<div class="card"><div class="card-h"><h2>{{ b.day|date:"l, d M" }}</h2></div><div class="card-b small">
+  {% for j in b.installs %}<div style="padding:.3rem 0"><span class="badge b-violet">Install</span> <a href="/app/p/{{ j.project_id }}/?tab=install">{{ j.project.customer.name }}</a> · {{ j.project.title }}<br><span class="muted">{% for a in j.assignments.all %}{{ a.technician.first_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</span> {% if j.customer_confirmed_at %}<span class="badge b-green">confirmed</span>{% endif %}</div>{% endfor %}
+  {% for s in b.surveys %}<div style="padding:.3rem 0"><span class="badge b-blue">Survey</span> <a href="/app/p/{{ s.project_id }}/?tab=survey">{{ s.project.customer.name }}</a><br><span class="muted">{{ s.assignee.first_name|default:"unassigned" }}</span> {% if s.customer_confirmed_at %}<span class="badge b-green">confirmed</span>{% endif %}</div>{% endfor %}
+  {% for t in b.visits %}<div style="padding:.3rem 0"><span class="badge b-amber">Service</span> <a href="/app/help/tickets/{{ t.id }}/">{{ t.code }} {{ t.customer.name }}</a><br><span class="muted">{{ t.assignee.first_name|default:"unassigned" }}</span></div>{% endfor %}
+  {% if not b.installs and not b.surveys and not b.visits %}<span class="muted">Nothing scheduled.</span>{% endif %}
+</div></div>{% endfor %}
+</div>
+{% endblock %}

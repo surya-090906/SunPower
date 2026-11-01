@@ -1,0 +1,12 @@
+{% extends "backoffice/base.html" %}
+{% block title %}Confirm delivery{% endblock %}
+{% block content %}
+<div class="page-head"><div><a class="small" href="/app/field/">‹ My day</a><h1 style="margin-top:.3rem">Confirm delivery</h1><div class="sub">{{ p.customer.name }} · {{ d.code }} · {{ p.site_address|truncatechars:70 }}</div></div></div>
+<div class="card mb" style="max-width:720px"><div class="card-h"><h2>Unloaded equipment</h2></div><div class="card-b tight tbl-wrap"><table class="table"><thead><tr><th>Item</th><th class="num">Qty</th><th>Serial numbers</th></tr></thead><tbody>
+  {% for g in groups %}<tr><td>{{ g.product.name }}</td><td class="num">{{ g.qty|qty }}</td><td class="mono small">{{ g.serials|join:", " }}</td></tr>{% endfor %}</tbody></table></div></div>
+<form method="post" class="card" style="max-width:720px"><div class="card-b stack">{% csrf_token %}
+  <div class="field"><label>Received by</label><input class="inp" name="received_by" value="{{ p.customer.name }}"></div>
+  <button class="btn btn-ok btn-lg btn-block">Confirm delivery</button>
+  <p class="hint">Confirming starts the warranty on every serial number above, counted from today.</p>
+</div></form>
+{% endblock %}

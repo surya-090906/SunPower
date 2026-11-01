@@ -1,5 +1,7 @@
 # HANDOFF: read this first
 
+**Current implementation (2026-11-01):** the complete application frontend is React + Vite + Material UI. Django serves authenticated JSON APIs and enforces workflow rules. Start the website with `npm run dev` in `frontend/` and open port 5173. Native workflow JSX is in `frontend/src/pages/generated/`; React form tools are in `frontend/src/components/NativeRuntime.jsx`. Old templates and scripts are archived in `others/legacy-frontend/` and are not loaded. See the root and frontend READMEs for current setup and deployment. The notes below describe the earlier implementation and its original verification status.
+
 Status as of 2026-10-31. Branch `dev` holds the work; `main` holds only the blueprint. Product spec: [SOLUTION.md](SOLUTION.md) (v1.1). **Stack changed from the blueprint's default: it is Django (Python), not Next.js**, because Odoo-hackathon teams know Python and it needed no front-end build. Ignore the Next.js/Prisma parts of SOLUTION.md §9.
 
 ## Run it

@@ -1,0 +1,42 @@
+{% extends "portal/base.html" %}
+{% block title %}Your quote{% endblock %}
+{% block content %}
+<a class="small" href="/portal/p/{{ p.id }}/">‹ Back to project</a>
+<div class="spread mt-s mb"><div><h1>Your quote</h1><div class="muted small">{{ p.code }} · version {{ q.version }}{% if q.valid_until %} · valid until {{ q.valid_until|dmy }}{% endif %}</div></div>
+  <span class="badge {{ q.status|status_class }}">{{ q.get_status_display }}</span></div>
+
+<div class="pcard" style="padding:0">
+  <div class="tbl-wrap"><table class="table">
+    <thead><tr><th>Item</th><th class="num">Qty</th><th class="num">Rate</th><th class="num">Amount</th></tr></thead>
+    <tbody>{% for l in lines %}<tr><td>{{ l.description }}</td><td class="num">{{ l.qty|qty }}</td><td class="num">{{ l.unit_price_paise|inr }}</td><td class="num">{{ l.net_paise|inr }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  <div style="padding:1rem 1.1rem">
+    <div class="spread"><span class="muted">Subtotal</span><span>{{ q.gross_paise|inr }}</span></div>
+    {% if discount_paise %}<div class="spread"><span class="muted">Discount ({{ q.discount_pct|qty }}%)</span><span>-{{ discount_paise|inr }}</span></div>{% endif %}
+    <div class="spread"><span class="muted">GST</span><span>{{ q.tax_paise|inr }}</span></div>
+    <div class="spread bold" style="font-size:1.15rem;border-top:2px solid var(--ink);margin-top:.4rem;padding-top:.5rem"><span>Total</span><span>{{ q.total_paise|inr }}</span></div>
+  </div>
+</div>
+
+{% if q.subsidy_paise %}
+<div class="banner info mt"><span class="ico">🏛️</span><div><div class="big">Expected subsidy {{ q.subsidy_paise|inr }}</div>
+  <div class="small">The government pays this to your bank account after commissioning; it is not deducted from this quote. Your net cost after subsidy is about <b>{{ q.net_cost_after_subsidy_paise|inr }}</b>.</div></div></div>
+{% endif %}
+
+{% if q.status == "sent" %}
+<form method="post" class="pcard mt stack">{% csrf_token %}
+  <h3>Accept this quote</h3>
+  <p class="small muted" style="margin:0">After you accept, pay the advance of <b>{{ advance|inr }}</b> ({{ advance_pct }}% of the total) and we schedule your installation.</p>
+  <div class="field"><label for="n">Type your full name to sign</label><input id="n" class="inp" name="name" value="{{ user.display_name }}" required></div>
+  <label class="check"><input type="checkbox" name="terms" value="1"><span class="small">I accept this quote and the terms of supply and installation.</span></label>
+  <button class="btn btn-primary btn-lg btn-block">Accept quote</button>
+</form>
+<form method="post" class="pcard mt stack">{% csrf_token %}<input type="hidden" name="action" value="ask">
+  <h3>Have a question?</h3><textarea class="inp" name="text" placeholder="Ask about the equipment, timing or price"></textarea><button class="btn btn-line">Send question</button>
+</form>
+{% elif q.status == "accepted" %}
+<div class="banner ok mt"><span class="ico">✓</span><div><div class="big">You accepted this quote{% if q.accepted_at %} on {{ q.accepted_at|dmy }}{% endif %}</div>
+  {% if p.stage == "accepted" %}<a class="btn btn-primary mt-s" href="/portal/p/{{ p.id }}/pay/">Pay the advance</a>{% endif %}</div></div>
+{% endif %}
+<p class="center mt"><a class="btn btn-line btn-sm" href="/doc/quote/{{ q.id }}/">Print or save as PDF</a></p>
+{% endblock %}

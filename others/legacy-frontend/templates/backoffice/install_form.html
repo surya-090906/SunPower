@@ -1,0 +1,46 @@
+{% extends "backoffice/base.html" %}
+{% block title %}Install form{% endblock %}
+{% block content %}
+<div class="page-head"><div><a class="small" href="/app/field/">‹ My day</a><h1 style="margin-top:.3rem">Install form</h1><div class="sub">{{ p.customer.name }} · {{ p.title }} · {{ p.site_address|truncatechars:70 }}</div></div></div>
+<form method="post" class="wizard" data-wizard data-start="{{ start_step }}" style="max-width:720px">{% csrf_token %}
+  <div class="wiz-head"><span>1 Checklist</span><span>2 Time and size</span><span>3 Photos</span><span>4 Sign-off</span></div>
+
+  <div class="step"><div class="card"><div class="card-b">
+    <h3 class="mb-s">Work completed</h3>
+    <div class="checklist">{% for key, label in checks %}<label><input type="checkbox" name="{{ key }}" {% if form|get_item:key %}checked{% endif %}>{{ label }}</label>{% endfor %}</div>
+    <button class="btn btn-primary btn-lg btn-block mt" data-next type="button">Next</button>
+  </div></div></div>
+
+  <div class="step"><div class="card"><div class="card-b">
+    <div class="fields">
+      <div class="field"><label>Started</label><input class="inp" type="datetime-local" name="started_at" value="{{ form.started_at|default:default_start }}" required></div>
+      <div class="field"><label>Finished</label><input class="inp" type="datetime-local" name="finished_at" value="{{ form.finished_at|default:default_end }}" required></div>
+      <div class="field"><label>System size installed (kW)</label><input class="inp" name="kw" value="{{ form.kw|default:quoted_kw }}" inputmode="decimal" required><span class="hint">Quoted: {{ quoted_kw }} kW</span></div>
+      <div class="field"><label>Generation test reading (kW)</label><input class="inp" name="reading" value="{{ form.reading }}" inputmode="decimal" placeholder="2.6" required></div>
+      <div class="field full"><label>If the size differs from the quote, why?</label><input class="inp" name="kw_note" value="{{ form.kw_note }}"></div>
+      <div class="field full"><label>Who was on site?</label>{% for a in crew %}<label class="check" style="padding:.3rem 0"><input type="checkbox" name="present" value="{{ a.technician_id }}" checked><span>{{ a.technician.display_name }}{% if a.role == "lead" %} (lead){% endif %}</span></label>{% endfor %}</div>
+    </div>
+    <div class="row mt"><button class="btn btn-line" data-prev type="button">Back</button><button class="btn btn-primary grow btn-lg" data-next type="button">Next</button></div>
+  </div></div></div>
+
+  <div class="step"><div class="card"><div class="card-b">
+    <div class="spread mb-s"><h3>Photos of the finished roof</h3><span class="small muted"><span data-photo-count>{{ photos|length }}</span> added, at least {{ need }} needed</span></div>
+    <div class="thumbs" data-uploader data-url="/app/field/photo/" data-target="job" data-id="{{ job.id }}" data-csrf="{{ csrf_token }}">
+      {% for ph in photos %}<div class="thumb"><img src="{{ ph.file.url }}" alt=""><span class="k">{{ ph.kind }}</span></div>{% endfor %}
+      {% for k, l in kinds %}<label class="upload-tile" data-kind="{{ k }}"><input type="file" accept="image/*" capture="environment" hidden multiple><span style="font-size:1.4rem">📷</span>{{ l }}</label>{% endfor %}
+    </div>
+    <div class="row mt"><button class="btn btn-line" data-prev type="button">Back</button><button class="btn btn-primary grow btn-lg" data-next type="button">Next</button></div>
+  </div></div></div>
+
+  <div class="step"><div class="card"><div class="card-b stack">
+    <h3>Customer sign-off</h3>
+    <p class="muted small" style="margin:0">Hand the phone to the customer. They confirm what was installed and sign with a finger.</p>
+    <div class="field"><label>Customer name</label><input class="inp" name="signed_by" value="{{ form.signed_by|default:p.customer.name }}" required></div>
+    <div class="sigpad" data-sigpad><canvas></canvas><input type="hidden" name="signature" value=""><div class="spread mt-s"><span class="hint">Sign inside the box</span><button class="btn btn-line btn-sm" type="button" data-sig-clear>Clear</button></div></div>
+    <div class="field"><label>Notes</label><textarea class="inp" name="notes">{{ form.notes }}</textarea></div>
+    <div><button class="btn btn-line btn-sm" type="button" data-geo>📍 Capture location (optional)</button> <span class="small muted" data-geo-out></span><input type="hidden" name="geo_lat"><input type="hidden" name="geo_lng"></div>
+    <div class="row"><button class="btn btn-line" data-prev type="button">Back</button><button class="btn btn-primary grow btn-lg">Submit and hand over</button></div>
+  </div></div></div>
+</form>
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/field.js' %}"></script>{% endblock %}

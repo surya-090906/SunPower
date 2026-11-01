@@ -428,7 +428,7 @@ Run it **split-screen:** Anita's portal in a phone-sized window on one side, the
 
 ## 9. Architecture
 
-> **As built:** Django 5 (Python) + SQLite, server-rendered templates, hand-written offline CSS/JS. See HANDOFF.md. The Next.js/Prisma text below was the original default and is superseded; the data model, rules and screens are unchanged.
+> **As built:** React + Vite + Material UI frontend; Django 5 (Python) JSON APIs + SQLite backend. All application workflows and printable documents render in React. See HANDOFF.md and frontend/README.md. The Next.js/Prisma text below was the original default and is superseded; the data model and rules remain in Django.
 
 ### Default stack (swap if your team is faster elsewhere; the model and rules do not change)
 - **Next.js (App Router, TypeScript) + Prisma + SQLite** (zero setup; move to Postgres only if you need a hosted copy). **zod** for validation, **date-fns** for dates, **Tailwind + shadcn/ui**, **Recharts**.

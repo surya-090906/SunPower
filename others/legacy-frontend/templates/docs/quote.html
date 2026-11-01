@@ -1,0 +1,19 @@
+{% extends base_template %}
+{% block title %}Quote {{ p.code }}{% endblock %}
+{% block content %}
+<div class="toolbar-print"><button class="btn btn-dark" onclick="window.print()">Print / save as PDF</button></div>
+<div class="doc">
+  {% include "docs/_head.html" with doc_title="Quotation" doc_no=p.code doc_date=q.sent_at|default:q.created_at %}
+  <table><thead><tr><th>#</th><th>Item</th><th class="num">Qty</th><th class="num">Rate</th><th class="num">GST</th><th class="num">Amount</th></tr></thead>
+  <tbody>{% for l in lines %}<tr><td>{{ forloop.counter }}</td><td>{{ l.description }}</td><td class="num">{{ l.qty|qty }}</td><td class="num">{{ l.unit_price_paise|inr }}</td><td class="num">{{ l.tax_pct }}%</td><td class="num">{{ l.net_paise|inr }}</td></tr>{% endfor %}</tbody></table>
+  <table class="totals" style="width:46%;margin-left:auto">
+    <tr><td>Subtotal</td><td class="num">{{ q.gross_paise|inr }}</td></tr>
+    {% if discount %}<tr><td>Discount ({{ q.discount_pct|qty }}%)</td><td class="num">-{{ discount|inr }}</td></tr>{% endif %}
+    <tr><td>GST</td><td class="num">{{ q.tax_paise|inr }}</td></tr>
+    <tr class="t"><td class="t">Total payable</td><td class="num t">{{ q.total_paise|inr }}</td></tr>
+  </table>
+  {% if q.subsidy_paise %}<p><b>Expected government subsidy: {{ q.subsidy_paise|inr }}.</b> Paid by the government to the customer's bank account after commissioning; it is not deducted from this quotation. Net cost after subsidy: about {{ q.net_cost_after_subsidy_paise|inr }}.</p>{% endif %}
+  <p>Version {{ q.version }}{% if q.valid_until %} · valid until {{ q.valid_until|dmy }}{% endif %}. Advance of {{ p.advance_required_paise|inr }} confirms the order{% if not p.advance_required_paise %} (30% of the total){% endif %}.</p>
+  {% if q.status == "accepted" %}<p>Accepted by <b>{{ q.accepted_by_name }}</b> on {{ q.accepted_at|dtm }}.</p>{% endif %}
+</div>
+{% endblock %}

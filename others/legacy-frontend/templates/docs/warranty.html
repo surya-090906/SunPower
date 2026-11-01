@@ -1,0 +1,12 @@
+{% extends base_template %}
+{% block title %}Warranty card {{ p.code }}{% endblock %}
+{% block content %}
+<div class="toolbar-print"><button class="btn btn-dark" onclick="window.print()">Print / save as PDF</button></div>
+<div class="doc">
+  {% include "docs/_head.html" with doc_title="Warranty card" doc_no=p.code doc_date=today %}
+  <p>Each unit carries its own warranty, counted from its delivery date. Quote the serial number when you report a problem.</p>
+  <table><thead><tr><th>Item</th><th>Serial number</th><th>From</th><th>Until</th><th>Status</th></tr></thead>
+  <tbody>{% for u in units %}<tr><td>{{ u.s.product.name }}</td><td class="mono">{{ u.s.serial_no }}</td><td>{{ u.w.start|dmy }}</td><td><b>{{ u.w.end|dmy }}</b></td><td>{{ u.w.label }}</td></tr>{% endfor %}</tbody></table>
+  <p style="font-size:12px;color:#4b5563">Warranty does not cover damage from lightning, flooding, physical impact or unauthorised repair. A replaced unit carries the remaining warranty of the unit it replaces.</p>
+</div>
+{% endblock %}

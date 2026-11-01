@@ -1,0 +1,10 @@
+{% extends "backoffice/base.html" %}
+{% block title %}Tickets{% endblock %}
+{% block content %}
+<div class="page-head"><div><a class="small" href="/app/help/">‹ Helpdesk</a><h1 style="margin-top:.3rem">Service tickets</h1><div class="sub">A ticket stays open until the customer confirms that everything works.</div></div></div>
+<div class="tabs">{% for k, l in tabs %}<a href="?status={{ k }}" class="{% if status == k %}active{% endif %}">{{ l }}</a>{% endfor %}</div>
+<div class="card"><div class="card-b tight tbl-wrap"><table class="table"><thead><tr><th>Ticket</th><th>Customer</th><th>Unit</th><th>Fault</th><th>Cover</th><th>Technician</th><th>Status</th><th>Opened</th></tr></thead><tbody>
+  {% for t in rows %}<tr><td><a class="mono" href="/app/help/tickets/{{ t.id }}/">{{ t.code }}</a>{% if t.reopen_count %} <span class="badge b-red">reopened ×{{ t.reopen_count }}</span>{% endif %}</td><td>{{ t.customer.name }}</td><td>{{ t.serial.product.name|default:"–" }}</td><td>{{ t.fault_code|default:"–" }}</td>
+    <td>{% if t.covered is True %}<span class="badge b-green">Warranty</span>{% elif t.covered is False %}<span class="badge b-red">Billable</span>{% else %}<span class="badge b-grey">Unchecked</span>{% endif %}</td><td>{{ t.assignee.first_name|default:"–" }}</td><td><span class="badge {{ t.status|status_class }}">{{ t.get_status_display }}</span></td><td class="small muted">{{ t.created_at|ago }}</td></tr>
+  {% empty %}<tr><td colspan="8" class="empty">No tickets here.</td></tr>{% endfor %}</tbody></table></div></div>
+{% endblock %}

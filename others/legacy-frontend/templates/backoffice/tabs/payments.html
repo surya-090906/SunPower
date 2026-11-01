@@ -1,0 +1,31 @@
+<div class="grid g4 mb">
+  <div class="card kpi"><div class="label">Quote total (incl. GST)</div><div class="val">{{ total|inr }}</div></div>
+  <div class="card kpi"><div class="label">Advance to confirm ({{ p.advance_required_paise|inr }})</div><div class="val">{{ advance_due|inr }}</div><div class="small muted">still needed</div></div>
+  <div class="card kpi"><div class="label">Paid (confirmed)</div><div class="val">{{ paid|inr }}</div></div>
+  <div class="card kpi"><div class="label">Balance due</div><div class="val">{{ due|inr }}</div></div>
+</div>
+<div class="grid g-main">
+  <div class="stack">
+    <div class="card"><div class="card-h"><h2>Payments</h2></div><div class="card-b tight tbl-wrap"><table class="table"><thead><tr><th>Date</th><th>Method</th><th>Reference</th><th class="num">Amount</th><th>Status</th><th></th></tr></thead><tbody>
+      {% for pay in payments %}<tr><td class="nowrap">{{ pay.received_at|dmy }}</td><td>{{ pay.get_method_display }}</td><td class="small mono">{{ pay.reference|default:"–" }}</td><td class="num">{{ pay.amount_paise|inr }}</td>
+        <td><span class="badge {{ pay.status|status_class }}">{{ pay.get_status_display }}</span>{% if pay.submitted_by and pay.submitted_by.is_customer %} <span class="tiny faint">by customer</span>{% endif %}</td>
+        <td class="nowrap">{% if pay.status == "pending" and can_verify %}<form method="post" action="/app/p/{{ p.id }}/do/payment_verify/" class="row" style="gap:.3rem">{% csrf_token %}<input type="hidden" name="payment" value="{{ pay.id }}"><button class="btn btn-ok btn-sm" name="decision" value="approve">Verify</button><button class="btn btn-danger btn-sm" name="decision" value="reject">Reject</button></form>{% elif pay.status == "confirmed" %}<a class="small" href="/doc/receipt/{{ pay.id }}/">Receipt</a>{% endif %}</td></tr>
+      {% empty %}<tr><td colspan="6" class="empty">No payments yet.</td></tr>{% endfor %}</tbody></table></div></div>
+    <div class="card"><div class="card-h"><h2>Invoices</h2></div><div class="card-b tight tbl-wrap"><table class="table"><thead><tr><th>Number</th><th>Type</th><th>Issued</th><th class="num">Total</th><th class="num">Balance</th><th>Status</th><th></th></tr></thead><tbody>
+      {% for inv in invoices %}<tr><td class="mono">{{ inv.number }}</td><td>{{ inv.get_kind_display }}</td><td>{{ inv.issue_date|dmy }}</td><td class="num">{{ inv.total_paise|inr }}</td><td class="num">{{ inv.balance_paise|inr }}</td><td><span class="badge {{ inv.status|status_class }}">{{ inv.get_status_display }}</span></td><td><a class="small" href="/doc/invoice/{{ inv.id }}/">Open</a></td></tr>
+      {% empty %}<tr><td colspan="7" class="empty">The final invoice is created automatically when the install is signed off.</td></tr>{% endfor %}</tbody></table></div></div>
+  </div>
+  <div class="card"><div class="card-h"><h2>Record a payment</h2></div><div class="card-b">
+    {% if not can_record %}<p class="muted small">Only Accounts and Sales record payments.</p>
+    {% elif not total %}<div class="gate">No accepted quote yet, so there is nothing to pay against.</div>
+    {% elif not due %}<div class="banner ok"><span class="ico">✓</span><div>Fully paid.</div></div>
+    {% else %}
+    <form method="post" action="/app/p/{{ p.id }}/do/payment_record/" class="stack">{% csrf_token %}
+      <div class="field"><label>Amount (₹)</label><input class="inp" name="amount" value="{{ default_rupees }}" inputmode="numeric" required></div>
+      <div class="field"><label>Method</label><select class="inp" name="method"><option value="upi">UPI</option><option value="bank">Bank transfer</option><option value="cash">Cash</option><option value="cheque">Cheque</option></select></div>
+      <div class="field"><label>Reference <span class="faint">(UTR or cheque no.)</span></label><input class="inp" name="reference"></div>
+      <button class="btn btn-primary btn-block">Record payment</button>
+      {% if advance_due %}<p class="hint">An advance of {{ advance_due|inr }} more confirms the order and creates the pick list and the install slot.</p>{% endif %}
+    </form>{% endif %}
+  </div></div>
+</div>

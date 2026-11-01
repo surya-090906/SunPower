@@ -1,0 +1,8 @@
+<div class="head">
+  <div><div style="font-weight:800;font-size:1.15rem">{{ co.name }}</div><div>{{ co.address }}</div><div>GSTIN {{ co.gstin }} · {{ co.phone }}</div></div>
+  <div style="text-align:right"><h1>{{ doc_title }}</h1><div>{{ doc_no }}</div><div>{{ doc_date|dmy }}</div></div>
+</div>
+<table style="margin-top:0"><tr>
+  <td style="border:0;width:50%"><div style="font-size:11px;text-transform:uppercase;color:#6b7280">Customer</div><b>{{ customer.name }}</b><br>{{ p.site_address|default:customer.address }}<br>{{ customer.phone|phone }}</td>
+  <td style="border:0"><div style="font-size:11px;text-transform:uppercase;color:#6b7280">Project</div><b>{{ p.code }}</b><br>{{ p.title }}</td>
+</tr></table>
